@@ -6,7 +6,6 @@ import { isHourValid } from '@/validators.js'
 const props= defineProps({
 
    hour:{
-
     required:true,
     type: Number,
     validator:isHourValid

@@ -13,7 +13,7 @@ const typeButtonClasses= {
 <script setup>
 
 import { isButtonTypeValid } from '@/validators.js'
-import { BUTTON_TYPE_PRIMARY } from '../../constants.js'
+
 
 defineProps({
   type:{
