@@ -34,7 +34,7 @@ const secondsToComplete = ref(null)
 
       </BaseButton>
 
-      <span class="truncate text-xl"> {{ activity }}</span>
+      <span class="truncate text-xl"> {{ activity.name }}</span>
     </div>
     <div>
       <BaseSelect class="font-mono "

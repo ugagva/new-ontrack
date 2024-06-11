@@ -2,7 +2,6 @@
 import BaseSelect from '@/components/BaseSelect.vue'
 import { isTimeItemIsValid, validateSelectOptions } from '@/validators.js'
 import { ref } from 'vue'
-import Hour from '@/components/HourForm.vue'
 import HourForm from '@/components/HourForm.vue'
 
 
@@ -18,10 +17,6 @@ defineProps({
    validator:validateSelectOptions
   }
 })
-
-
-
-
 
 const selectedActivityId= ref(0)
 
