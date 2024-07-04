@@ -3,40 +3,59 @@
 
 import TheHeader from '@/components/TheHeader.vue'
 import TheNav from '@/components/TheNav.vue'
-import TheTimeline from '@/pages/TheTimeline.vue'
 import TheActivities from '@/pages/TheActivities.vue'
 import TheProgress from '@/pages/TheProgress.vue'
 import { PAGE_ACTIVITIES, PAGE_PROGRESS, PAGE_TIMELINE } from '../constants.js'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import {
   generateActivities,
   generateActivitySelectOptions,
-  generateTimelineItems, id,
+  generateTimelineItems,
   normalizePageHash
 } from '/functions.js'
 
-const currentPage = ref(normalizePageHash())
+import TheTimeLine from '@/pages/TheTimeLine.vue'
 
-const timelineItems = generateTimelineItems()
+const currentPage = ref(normalizePageHash())
 
 const activities = ref(generateActivities())
 
-const activitySelectOptions = generateActivitySelectOptions(activities.value)
+const timelineItems = ref(generateTimelineItems(activities.value))
+
+
+
+const activitySelectOptions = computed(() => generateActivitySelectOptions(activities.value))
 
 
 function goTo(page) {
   currentPage.value = page
 }
 
-function deleteActivity(activity) { activities.value.splice(activities.value.indexOf(activity),1)}
+function deleteActivity(activity) {
+  timelineItems.value.forEach((timeItem) => {
 
-function createActivity(name) {
-  activities.value.push({
-    id: id(),
-    name,
-    secondsToComplete: 0
+    if (timeItem.activityId === activity.id) {
+      timeItem.activityId = null
+      timeItem.activitySeconds = 0
+
+    }
   })
+  activities.value.splice(activities.value.indexOf(activity), 1)
 }
+
+
+function createNewActivity(activity) {
+  activities.value.push(activity)
+}
+
+function setTimeItemByActivity({ timeItem, activity }) {
+  timeItem.activityId = activity.id
+}
+
+function setActivitySecondsToComplete(activity, secondsToComplete) {
+  activity.secondsToComplete = secondsToComplete
+}
+
 
 </script>
 
@@ -44,11 +63,23 @@ function createActivity(name) {
 <template>
   <TheHeader v-on:navigate="goTo($event)" />
 
-
   <main class="flex flex-grow flex-col">
-    <TheTimeline v-show="currentPage === PAGE_TIMELINE" :timelineItems="timelineItems"
-                 :activity-select-options="activitySelectOptions" />
-    <TheActivities v-show="currentPage ===PAGE_ACTIVITIES" :activities="activities" v-on:delete-activity="deleteActivity" v-on:create-activity="createActivity" />
+
+    <TheTimeLine v-show="currentPage === PAGE_TIMELINE"
+                 :timeline-items="timelineItems"
+                 :activities="activities"
+                 :activity-select-options="activitySelectOptions"
+                 @set-time-item-activity="setTimeItemByActivity"
+    />
+
+
+    <TheActivities v-show="currentPage ===PAGE_ACTIVITIES"
+                   :activities="activities"
+                   @create-activity="createNewActivity"
+                   @delete-activity="deleteActivity"
+                   @set-activity-seconds-to-complete="setActivitySecondsToComplete" />
+
+
     <TheProgress v-show="currentPage === PAGE_PROGRESS" />
   </main>
 

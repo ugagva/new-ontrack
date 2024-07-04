@@ -2,24 +2,37 @@
 
 import BaseButton from '@/components/BaseButton.vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline/index.js'
-import { isNumberOrNull, isUndefinedOrNull, validateSelectOptions } from '@/validators.js'
+import {  isSelectValueValid, isUndefinedOrNull, validateSelectOptions } from '@/validators.js'
 import { computed } from 'vue'
 import { BUTTON_TYPE_NEUTRAL } from '../../constants.js'
+import { normalizeSelectValue } from '../../functions.js'
 
 const props=defineProps({
-  selected:Number,
+
+  selected:[String,Number],
+
   options: {
     required:true,
     type:Array,
     validator:validateSelectOptions
   },
-  placeholder:String
+
+  placeholder:{
+    required:true,
+    type:String,
+  }
+
 })
+
 
 const emit = defineEmits({
-  select:isNumberOrNull()
+  select:isSelectValueValid
+ })
 
-})
+ function select (value){
+  emit('select',normalizeSelectValue(value))
+ }
+
 const isNotSelected=computed(()=>  isUndefinedOrNull(props.selected))
 
 
@@ -28,18 +41,24 @@ const isNotSelected=computed(()=>  isUndefinedOrNull(props.selected))
 <template>
   <div class="flex gap-2">
 
-    <BaseButton v-bind:type="BUTTON_TYPE_NEUTRAL" @click="emit('select',null)">
-      <XMarkIcon class="h-8" />
+    <BaseButton v-bind:type="BUTTON_TYPE_NEUTRAL" v-on:click="select(null)">
+      <XMarkIcon class="h-6" /> <!--Кнопка Х-->
     </BaseButton>
 
 
-    <select class="w-full truncate rounded bg-gray-100 py-1 px-2 text-2xl"
-            v-on:change="emit('select',+$event.target.value)">
+    <select
+      class="w-full truncate rounded bg-gray-100 py-1 px-2 text-2xl"
+            @change="select($event.target.value)">    <!--Выбранная активность -->
 
+      <option :selected="isNotSelected" disabled value="">
+        {{placeholder}}  <!--Название -->
+      </option>
 
-      <option v-bind:selected="isNotSelected" disabled value="">{{placeholder}}</option>
-      <option v-for="{value, label} in options" :key="value" :value="value" :selected="value===selected">
-        {{ label }}
+      <option v-for="{value,label} in options"
+              :key="value"
+              :value="value"
+              :selected="value===selected">
+        {{ label}}     <!--Время-->
       </option>
     </select>
   </div>
